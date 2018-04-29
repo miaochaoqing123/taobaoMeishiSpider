@@ -5,6 +5,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from pyquery import PyQuery as pq
+from config import *
+import pymongo
+
+client = pymongo.MongoClient(MONGO_URL)
+db = client[MONGO_DB]
 
 driver = webdriver.Chrome()
 # headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36"}
@@ -25,6 +30,7 @@ def search():
         submit_tb.click()
         # sleep(3)
         # 取出总页数
+        sleep(2)
         total = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#mainsrp-pager > div > div > div > div.total')))
         get_products()  # 调用下面的解析方法
         total = total.text
@@ -46,6 +52,7 @@ def next_page(page_number):
         input_tb.clear()  # 先清除里面的数字
         input_tb.send_keys(page_number)  # 再输入页码
         submit_tb.click()  # 点击确认,转入到下一页
+        sleep(2)
         # 判断高亮是否为本页
         wait.until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, '#mainsrp-pager > div > div > div > ul > li.item.active > span'),str(page_number)))
         get_products()
@@ -69,6 +76,16 @@ def get_products():
             'location': item.find('.location').text()
         }
         print(product)
+        save_to_mongo(product)
+
+def save_to_mongo(result):
+    try:
+        if db[MONGO_TABLE].insert(result):
+            print("存储到MONGODB成功",result)
+    except Exception:
+        print("存储到MONGODB失败",result)
+
+
 
 
 def main():
@@ -77,6 +94,7 @@ def main():
     # 用for循环遍历页码
     for i in range(2,total + 1):
         next_page(i)
+    driver.quit()
 
 if __name__ == '__main__':
     main()
