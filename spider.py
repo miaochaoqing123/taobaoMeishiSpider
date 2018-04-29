@@ -39,22 +39,26 @@ def search():
 # 下一页
 def next_page(page_number):
     try:
+        # 找到页码的输入框
         input_tb = wait.until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '#mainsrp-pager > div > div > div > div.form > input'))
         )
-        # 搜索按钮
+        # 页码确定按钮
         submit_tb = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#mainsrp-pager > div > div > div > div.form > span.btn.J_Submit')))
         # driver.find_element_by_css_selector('#J_TSearchForm > div.search-button > button').click()
-        input_tb.clear()
-        input_tb.send_keys(page_number)
-        submit_tb.click()
+        input_tb.clear()  # 先清除里面的数字
+        input_tb.send_keys(page_number)  # 再输入页码
+        submit_tb.click()  # 点击确认,转入到下一页
+        # 判断高亮是否为本页
         wait.until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, '#mainsrp-pager > div > div > div > ul > li.item.active > span'),str(page_number)))
     except TimeoutError:
+        # 如果出现TimeoutError的错误,则继续
         next_page(page_number)
 
 def main():
     total = search()
     print(total)
+    # 用for循环遍历页码
     for i in range(2,total + 1):
         next_page(i)
 
