@@ -11,12 +11,17 @@ import pymongo
 client = pymongo.MongoClient(MONGO_URL)
 db = client[MONGO_DB]
 
-driver = webdriver.Chrome()
+# driver = webdriver.Chrome()
+# 把config.py里设置的放入到PhantomJS
+driver = webdriver.PhantomJS(service_args=SERVICE_ARGS)  # 用PhantomJS让程序后台运行
 # headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36"}
 wait = WebDriverWait(driver, 10)
 
+driver.set_window_size(1366, 768)
+
 # 模拟输入美食和点击搜索
 def search():
+    print("正在搜索.....")
     try:
         driver.get('https://www.taobao.com/')
         # 输入框
@@ -41,6 +46,7 @@ def search():
 
 # 下一页
 def next_page(page_number):
+    print('正在翻第 '+ str(page_number) + ' 页')
     try:
         # 找到页码的输入框
         input_tb = wait.until(
