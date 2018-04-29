@@ -95,12 +95,17 @@ def save_to_mongo(result):
 
 
 def main():
-    total = search()
-    print(total)
-    # 用for循环遍历页码
-    for i in range(2,total + 1):
-        next_page(i)
-    driver.quit()
+    # 异常处理:无论程序有无出现异常,最后都要关闭浏览器
+    try:
+        total = search()
+        print(total)
+        # 用for循环遍历页码
+        for i in range(2,total + 1):
+            next_page(i)
+    except Exception:
+        print("出错了...")
+    finally:
+        driver.quit()
 
 if __name__ == '__main__':
     main()
